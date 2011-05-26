@@ -1,0 +1,27 @@
+#!/bin/sh
+
+server=`basename $0`
+HOSTTYPE=`uname`
+if [ $HOSTTYPE == 'Linux' ]
+then
+	# Linux
+        PING_RESULT=`ping -c 1 -W 1 $server | grep received | awk '{print $4}'`
+else
+	# MacOSX
+        PING_RESULT=`ping -c 1 -t 1 $server | grep received | awk '{print $4}'`
+fi
+
+if [ "$PING_RESULT" == "ping: cannot resolve $server: Unknown host" ] 
+then
+	# DNS not found
+	echo DNS Not found
+else 
+	if [ $PING_RESULT -eq 1 ]
+	then
+	    ssh $server $* 2>/dev/null
+	else
+  	  	echo "Server can not be reached"
+	fi
+fi
+
+
