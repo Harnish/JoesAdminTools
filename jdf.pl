@@ -6,11 +6,17 @@
 #	Description:	This is my mod of df and bdf so I can get the functionality out of it   #
 #			that I want insted of each *nix vendor's junk.				#
 #################################################################################################
+#  	Change Log										#
+#		Joseph Harnish 10/6/2009 - Added Graphing.					#	
+#		Joseph Harnish 5/18/2010 - Fixed Graphing on HPUX				# 
+#################################################################################################
 use strict;
 
 my $human = 0;
 my $search = '';
 my $final_size = '';
+my $VERSION = 1.3;
+my $output = 'standard';
 ##############################
 #  Get command line options  #
 ##############################
@@ -21,10 +27,15 @@ foreach my $opts (@ARGV){
 		Usage();
 	} elsif ($opts eq '-M'){
 		$final_size = 'M';
+		$human = 1;
 	} elsif ($opts eq '-K'){
 		$final_size = 'K';
+		$human = 1;
 	} elsif ($opts eq '-G'){
 		$final_size = 'G';
+		$human = 1;
+	} elsif ($opts eq '-g'){
+		$output = 'graph';
 	} else {
 		$search = $opts;
 	}
@@ -43,6 +54,8 @@ if($server_type eq 'HP-UX'){
 } elsif ($server_type eq 'Linux'){
 #	print "Found Linux\n";
 	$return_from_server = `df -l`;
+} elsif ($server_type eq 'AIX'){
+	$return_from_server = `df -k`;
 } else {
 	print "I am $server_type and I am not supported yet!!\n";
 }
@@ -84,7 +97,7 @@ for(my $i = 0; $i <= $#server_mount_data; $i++){
 	# Search for any strings passed to this script  #
 	#################################################
 	my $found = 0;
-	for (my $i = 0; $i < 6; $i++){
+	for (my $i = 0; $i <= 6; $i++){
 		$found = 1 if($mount_split[$i] =~ m/$search/);
 		$sizes[$i] = length($mount_split[$i]) +2 if($sizes[$i] < length($mount_split[$i]) +2);      	
         }
@@ -96,6 +109,7 @@ for(my $i = 0; $i <= $#server_mount_data; $i++){
 # Print the final output		#
 #########################################
 foreach my $line (@output){
+	# Add sorting here?
 	my $i = 0;
 	next if($#$line < 5);
 	foreach my $val (@$line){
@@ -105,6 +119,31 @@ foreach my $line (@output){
 		}
 		$i++;
 	}
+	if ($output eq 'graphline'){
+		print '|';
+		my $counter = 0;
+		if($server_type eq 'HP-UX'){
+			$counter = $$line[4];
+		} else {
+			$counter = $$line[3];
+		}
+		chop($counter);
+		$counter = int($counter/10)|| 0;
+		my $anticounter = 10 - $counter;
+		while ($counter >= 0){
+			print '#';
+			$counter--;
+		}
+		while ($anticounter >= 0){
+			print ' ';
+			$anticounter--;
+		}
+		print '|';
+	} elsif($output eq 'graph'){
+                print "Graph";
+                $output = 'graphline';
+        }
+	
 	print "\n";
 }
 
@@ -154,7 +193,7 @@ sub Usage {
 
 print <<EODUMP;
 
-jdf
+jdf version $VERSION
 
 	Usage: jdf [options] [search]
 
@@ -166,10 +205,18 @@ jdf
 
 	-G 	Return GB as the highest size denomination
 
+	-g 	Adds a usage graph to the output
+
 	-?	Prints this page
 
 	
 EODUMP
+
+
+#################
+# add script formating?
+# add sorting
+###################
 
 exit;
 
