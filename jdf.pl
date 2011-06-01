@@ -16,7 +16,7 @@ use Term::ANSIColor;
 my $human = 0;
 my $search = '';
 my $final_size = '';
-my $VERSION = 1.4;
+my $VERSION = 1.5;
 my $output = 'standard';
 ##############################
 #  Get command line options  #
@@ -26,6 +26,9 @@ foreach my $opts (@ARGV){
 		$human = 1;
 	} elsif ($opts eq '-?'){
 		Usage();
+	} elsif ($opts eq '-v'){
+		print "Version $VERSION\n";
+		exit;
 	} elsif ($opts eq '-M'){
 		$final_size = 'M';
 		$human = 1;
