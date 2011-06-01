@@ -60,6 +60,8 @@ if($server_type eq 'HP-UX'){
 	$return_from_server = `df -l`;
 } elsif ($server_type eq 'AIX'){
 	$return_from_server = `df -k`;
+} elsif ($server_type eq 'Darwin'){
+	$return_from_server = `df -l`;
 } else {
 	print "I am $server_type and I am not supported yet!!\n";
 }
@@ -126,7 +128,7 @@ foreach my $line (@output){
 	if ($output eq 'graphline'){
 		print '|';
 		my $counter = 0;
-		if($server_type eq 'HP-UX'){
+		if(($server_type eq 'HP-UX') || ($server_type eq 'Darwin')){
 			$counter = $$line[4];
 		} else {
 			$counter = $$line[3];
@@ -218,6 +220,8 @@ jdf version $VERSION
 	-G 	Return GB as the highest size denomination
 
 	-g 	Adds a usage graph to the output
+
+	-v	Returns the version number of jdf: $VERSION
 
 	-?	Prints this page
 
