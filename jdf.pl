@@ -11,11 +11,12 @@
 #		Joseph Harnish 5/18/2010 - Fixed Graphing on HPUX				# 
 #################################################################################################
 use strict;
+use Term::ANSIColor;
 
 my $human = 0;
 my $search = '';
 my $final_size = '';
-my $VERSION = 1.3;
+my $VERSION = 1.4;
 my $output = 'standard';
 ##############################
 #  Get command line options  #
@@ -129,6 +130,13 @@ foreach my $line (@output){
 		}
 		chop($counter);
 		$counter = int($counter/10)|| 0;
+		if($counter > 9){
+			print color 'red';
+		} elsif ($counter >7){
+			print color 'yellow';
+		} else {
+			print color 'green';
+		}
 		my $anticounter = 10 - $counter;
 		while ($counter >= 0){
 			print '#';
@@ -138,6 +146,7 @@ foreach my $line (@output){
 			print ' ';
 			$anticounter--;
 		}
+		print color 'reset';
 		print '|';
 	} elsif($output eq 'graph'){
                 print "Graph";
